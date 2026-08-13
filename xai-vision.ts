@@ -35,7 +35,7 @@ export const getConfigPath = () => join(homePath(), ".pi", "xai-vision.json");
 export const getCachePath = () => join(homePath(), ".pi", "xai-vision-cache.json");
 
 /** Vision-capable flagship; not composer (text-only) and not legacy grok-build. */
-export const DEFAULT_DESCRIBE_MODEL = "grok-4.5";
+export const DEFAULT_DESCRIBE_MODEL = "grok-4.6";
 export const DEFAULT_MAX_IMAGES = 4;
 export const DEFAULT_CACHE_MAX_ENTRIES = 100;
 

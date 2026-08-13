@@ -71,6 +71,7 @@ export function resolveXaiConfig(): ResolvedXaiConfig {
 const GROK_EFFORT_PREFIXES = [
   "grok-3-mini",
   "grok-4.20-multi-agent",
+  "grok-4.6",
   "grok-4.5",
   "grok-4.3",
 ] as const;

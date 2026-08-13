@@ -44,7 +44,7 @@ pi install npm:pi-xai
 
 ```text
 /login grok-build
-/model grok-build/grok-4.5
+/model grok-build/grok-4.6
 ```
 
 | Command | What it does |
@@ -131,7 +131,8 @@ Public API override:
 | --- | ---: | --- | --- |
 | `grok-composer-2.5-fast` | 200K | text | Fast coding; vision routing on by default |
 | `grok-build` | 500K | text + image | Coding |
-| `grok-4.5` | 500K | text + image | Flagship reasoning |
+| `grok-4.6` | 500K | text + image | Flagship reasoning (`low`/`medium`/`high`/`xhigh`) |
+| `grok-4.5` | 500K | text + image | Reasoning (`low`/`medium`/`high`) |
 | `grok-4.3` | 1M | text + image | Long context |
 | `grok-4.20-0309-reasoning` | 2M | text + image | Auto reasoning |
 | `grok-4.20-0309-non-reasoning` | 2M | text + image | Fast 4.20 |
@@ -231,7 +232,7 @@ Needs Grok Build OAuth. Web: [grok.com usage](https://grok.com/?_s=usage).
 
 ### Vision routing (Composer)
 
-Default **`composer`**: images from `read` → describe via `grok-4.5` → text.
+Default **`composer`**: images from `read` → describe via `grok-4.6` → text.
 
 ```text
 /xai-vision:composer | on | off | status | cache-clear

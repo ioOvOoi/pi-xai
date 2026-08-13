@@ -592,14 +592,22 @@ export default async function (api: ExtensionAPI) {
         prompt: Type.String({ description: "User prompt / message" }),
         model: Type.Optional(
           Type.String({
-            description: "Model override (default: grok-4.5)",
+            description: "Model override (default: grok-4.6)",
           }),
         ),
         reasoningEffort: Type.Optional(
-          Type.Union([Type.Literal("low"), Type.Literal("medium"), Type.Literal("high")], {
-            description:
-              "grok-4.5 / grok-4.3: low/medium/high (API default high; cannot disable). Prefer low for latency-sensitive agentic use.",
-          }),
+          Type.Union(
+            [
+              Type.Literal("low"),
+              Type.Literal("medium"),
+              Type.Literal("high"),
+              Type.Literal("xhigh"),
+            ],
+            {
+              description:
+                "grok-4.6: low/medium/high/xhigh; grok-4.5/4.3: low/medium/high (API default high; cannot disable). Prefer low for latency-sensitive agentic use.",
+            },
+          ),
         ),
         system: Type.Optional(Type.String({ description: "System/developer instruction" })),
         previousResponseId: Type.Optional(
@@ -671,7 +679,7 @@ export default async function (api: ExtensionAPI) {
           }
         }
 
-        const modelToUse = model || "grok-4.5";
+        const modelToUse = model || "grok-4.6";
         const isReasoningModel =
           grokSupportsReasoningEffort(modelToUse) ||
           modelToUse === "grok-build" ||

@@ -53,6 +53,25 @@ const GROK_BUILD_MODEL_SPECS: GrokBuildModelSpec[] = [
     cost: COST_BUILD,
   },
   {
+    id: "grok-4.6",
+    name: "Grok 4.6",
+    reasoning: true,
+    contextWindow: 500_000,
+    maxTokens: 131_072,
+    input: ["text", "image"],
+    cost: COST_45,
+    // API: low/medium/high/xhigh (default high); cannot disable. max→xhigh (API top).
+    thinkingLevelMap: {
+      off: null,
+      minimal: "low",
+      low: "low",
+      medium: "medium",
+      high: "high",
+      xhigh: "xhigh",
+      max: "xhigh",
+    },
+  },
+  {
     id: "grok-4.5",
     name: "Grok 4.5",
     reasoning: true,

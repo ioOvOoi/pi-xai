@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.0] - 2026-08-13
+
+### Added
+
+- **Grok 4.6** (`grok-4.6`) — 500k context, reasoning with full effort map (`minimal`→`low`, `low`, `medium`, `high`, `xhigh`, `max`→`xhigh`; `off` hidden). Default for `xai_generate_text` and vision describe model.
+
 ## [0.17.1] - 2026-07-24
 
 ### Fixed
