@@ -137,6 +137,14 @@ export class XaiLlmAdapter extends LlmAdapter {
     if (!res.body) {
       throw new LlmError("pi-xai: empty response body", "EMPTY_RESPONSE");
     }
+    const contentType = res.headers.get("content-type") ?? "";
+    if (!contentType.includes("text/event-stream")) {
+      // Proxy fell back to a non-streaming full JSON response (observed on
+      // cli-chat-proxy when stream:true is not honored). Synthesize chunks.
+      const json = await res.json();
+      yield* translateResponsesJson(json, options.signal);
+      return;
+    }
     yield* translateResponsesSse(res.body, options.signal);
   }
 }
@@ -150,6 +158,9 @@ function buildResponsesBody(options: GenerateOptions, _baseUrl: string): Record<
     model: options.model,
     input,
     store: false,
+    // Grok CLI proxy streams only when asked explicitly; without it the proxy
+    // returns a full non-streaming JSON body (observed live on cli-chat-proxy).
+    stream: true,
   };
   const tools = serializeTools(options.tools);
   if (tools.length > 0) {
@@ -347,6 +358,25 @@ async function* translateResponsesSse(
           }
           break;
         }
+        case "response.reasoning_summary_part.added":
+        case "response.reasoning_text_part.added": {
+          // Reasoning parts can arrive under their own event (proxy live-observed)
+          // instead of via content_part.added; open a reasoning block for the item.
+          const itemId = json?.item_id;
+          const had = itemId ? open.has(itemId) : false;
+          openBlock(itemId, "reasoning");
+          if (!had && itemId) {
+            const block = open.get(itemId);
+            if (block) {
+              yield {
+                type: "block-start",
+                index: block.index,
+                blockType: "reasoning",
+              } as StreamChunk;
+            }
+          }
+          break;
+        }
         case "response.output_text.delta": {
           const itemId = json?.item_id;
           const block = itemId ? open.get(itemId) : undefined;
@@ -484,4 +514,83 @@ async function* translateResponsesSse(
     if (signal?.aborted) throw new LlmError("pi-xai: stream aborted", "TRANSPORT", { status: 499 });
     throw new LlmError("pi-xai: stream ended without response.completed", "EMPTY_RESPONSE");
   }
+}
+
+/**
+ * Non-streaming fallback: synthesize StreamChunk from a complete Responses JSON
+ * (used when a proxy ignores stream:true and returns application/json).
+ */
+async function* translateResponsesJson(
+  json: any,
+  signal: AbortSignal | undefined,
+): AsyncGenerator<StreamChunk> {
+  const response = json?.response ?? json;
+  if (!response) throw new LlmError("pi-xai: unexpected non-streaming payload", "EMPTY_RESPONSE");
+  const output: any[] = response.output ?? [];
+  let index = 0;
+  let sawToolCall = false;
+
+  for (const item of output) {
+    if (item.type === "reasoning") {
+      const text = Array.isArray(item.summary)
+        ? item.summary.map((s: any) => s?.text ?? "").join("")
+        : "";
+      if (text) {
+        const i = index++;
+        yield { type: "block-start", index: i, blockType: "reasoning" } as StreamChunk;
+        yield { type: "reasoning-delta", index: i, text } as StreamChunk;
+        yield { type: "block-end", index: i, block: { type: "reasoning", text } } as StreamChunk;
+      }
+    } else if (item.type === "function_call") {
+      sawToolCall = true;
+      const i = index++;
+      const id = CallId(item.id ?? `fc-${i}`);
+      yield { type: "block-start", index: i, blockType: "tool-call" } as StreamChunk;
+      yield {
+        type: "tool-call-delta",
+        index: i,
+        id,
+        name: item.name,
+        argumentsDelta: item.arguments,
+      } as StreamChunk;
+      yield {
+        type: "block-end",
+        index: i,
+        block: { type: "tool-call", id, name: item.name, arguments: item.arguments },
+      } as StreamChunk;
+    } else if (item.type === "message" && Array.isArray(item.content)) {
+      for (const part of item.content) {
+        if (part.type === "output_text" && typeof part.text === "string") {
+          const i = index++;
+          yield { type: "block-start", index: i, blockType: "text" } as StreamChunk;
+          yield { type: "text-delta", index: i, text: part.text } as StreamChunk;
+          yield {
+            type: "block-end",
+            index: i,
+            block: { type: "text", text: part.text },
+          } as StreamChunk;
+        }
+      }
+    }
+  }
+
+  const usage = response.usage;
+  if (usage && typeof usage === "object") {
+    yield {
+      type: "usage",
+      usage: {
+        inputTokens: usage.input_tokens ?? 0,
+        outputTokens: usage.output_tokens ?? 0,
+        cacheReadTokens: usage.input_tokens_details?.cached_tokens,
+        reasoningTokens: usage.output_tokens_details?.reasoning_tokens,
+      },
+    } as StreamChunk;
+  }
+  const reason: FinishReason = sawToolCall
+    ? { kind: "tool-calls" }
+    : response.status === "incomplete"
+      ? { kind: "max-tokens" }
+      : { kind: "stop" };
+  yield { type: "finish", reason };
+  if (signal?.aborted) throw new LlmError("pi-xai: stream aborted", "TRANSPORT", { status: 499 });
 }
