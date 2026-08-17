@@ -2,8 +2,8 @@
  * pi-xai — xAI / Grok Build extras for DeepSeek Harness.
  *
  * Host half: registers the `pi-xai` LLM provider route (Grok Build subscription
- * path via the xAI Responses API), a `pi-xai:` settings section, three agentic
- * tools, and the /xai-usage command.
+ * path via the xAI Responses API), a `pi-xai:` settings section, agentic +
+ * media/web tools, and the /xai-usage command.
  */
 
 import { Context } from "@deepseek-ai/cordis";
@@ -17,6 +17,7 @@ import { Config, NS, PROVIDER, resolveOptions } from "./config.ts";
 import { XaiLlmAdapter } from "./adapter.ts";
 import { createXaiApiKeyResolver } from "./credentials.ts";
 import { registerTools } from "./tools.ts";
+import { registerMediaTools } from "./media-tools.ts";
 import { registerCommands } from "./commands.ts";
 
 export const name = "pi-xai";
@@ -73,5 +74,6 @@ export function apply(ctx: Context, config: unknown): void {
   });
 
   registerTools(ctx, { options, resolveApiKey });
+  registerMediaTools(ctx, { options, resolveApiKey });
   registerCommands(ctx as unknown as Parameters<typeof registerCommands>[0], resolveApiKey);
 }

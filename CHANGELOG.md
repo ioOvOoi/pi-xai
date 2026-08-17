@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed（DSH 适配，dsh 分支）
+
+- **改造为 DeepSeek Harness 原生 bundle 插件**：`dsh.bundle.patch` 声明 + `cordis.patch.yml` + tsc 构建管线（`lib/`）+ `pi-xai:` 设置段。
+- **协议层迁入 `src/protocol/`** 并抽取 `xai-payload.ts`；Grok Build CLI 代理头 / Responses 归一化 / OAuth / billing 逻辑原样保留（70 断言单测全绿）。
+- **新增 `XaiLlmAdapter`**：xAI Responses SSE → DSH StreamChunk 流，注册 `pi-xai` LLM provider 路由（Grok Build 目录 8 模型），接入 DSH credentials / launch-env / Grok Build OAuth 凭据链。
+- **工具移植**：`xai_generate_text` / `xai_multi_agent` / `xai_x_search` / `image_gen` / `image_edit` / `image_to_video` / `web_fetch`（DSH `defineTool` 注册）。
+- **命令**：`/xai-usage`（Grok Build 订阅配额）。
+- **去重**：goal / plan-mode 使用 DSH 原生能力，不再移植；usage 状态栏 / prompt 幽灵暂缓。
+
 ## [0.18.0] - 2026-08-13
 
 ### Added

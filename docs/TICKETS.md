@@ -9,9 +9,9 @@
 | 2 | 凭据层 | grok-build OAuth（PKCE/device/CLI 导入/refresh/JWT 过期）+ 优先级链，接入 DSH credentials/launch-env | 单元测试通过；XAI_API_KEY 路径可用 | 🔄 |
 | 3 | 模型注册 | Grok Build 模型目录 → `XaiLlmAdapter`（Responses SSE→StreamChunk）+ 请求归一化 + CLI 代理头 + settings 段 | 模型出现在 DSH 模型列表；流式对话可用 | ✅ 运行时注册已实证（8 模型）；真实流式调用待凭据 |
 | 4 | 文本工具 | xai_generate_text / xai_multi_agent / xai_x_search | 工具注册成功、schema 校验、真实调用（mock/线上） | ✅ 已注册；真实调用待凭据 |
-| 5 | 媒体与抓取 | image_gen / image_edit / image_to_video / web_fetch | mock 测试通过、产物落盘 | ⬜ |
+| 5 | 媒体与抓取 | image_gen / image_edit / image_to_video / web_fetch | mock 测试通过、产物落盘 | ✅ 已注册（运行时 fiber active）；真实调用待凭据 |
 | 6 | 命令与用量 | /xai-usage（+statusbar 开关）、billing 查询 | 命令可用、格式化正确 | ✅ 已注册；billing 待凭据 |
-| 7 | README 与发布 | README 重写（DSH 安装方式）、CHANGELOG、CI 适配 | 文档可指引安装 | ⬜ |
+| 7 | README 与发布 | README 重写（DSH 安装方式）、CHANGELOG、CI 适配 | 文档可指引安装 | ✅ |
 
 ## 已确认去重（不移植）
 
