@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **工具移植**：`xai_generate_text` / `xai_multi_agent` / `xai_x_search` / `image_gen` / `image_edit` / `image_to_video` / `web_fetch`（DSH `defineTool` 注册）。
 - **命令**：`/xai-usage`（Grok Build 订阅配额）。
 - **去重**：goal / plan-mode 使用 DSH 原生能力，不再移植；usage 状态栏 / prompt 幽灵暂缓。
+- **真实链路验证**：`scripts/e2e-smoke.mjs` 走通凭据解析 → CLI 代理 → Responses SSE → StreamChunk（grok-4.6 实测输出 + usage + finish 通过）；修复：CLI 代理需显式 `stream:true`（否则回退非流式 JSON 兜底翻译）。
 
 ## [0.18.0] - 2026-08-13
 
