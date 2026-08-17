@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **去重**：goal / plan-mode 使用 DSH 原生能力，不再移植；usage 状态栏 / prompt 幽灵暂缓。
 - **真实链路验证**：`scripts/e2e-smoke.mjs` 走通凭据解析 → CLI 代理 → Responses SSE → StreamChunk（grok-4.6 实测输出 + usage + finish 通过）；修复：CLI 代理需显式 `stream:true`（否则回退非流式 JSON 兜底翻译）。
 - **思考强度可选**：`resolveModel` 暴露 reasoning efforts（grok-4.6/4.5/4.3/multi-agent 可选 low/medium/high，4.6 与 multi-agent 含 xhigh；grok-build/非推理模型不暴露），DSH 模型选择 UI 可直接调整；effort 参数真实链路实测通过。
+- **修复工具调用被静默丢弃（关键）**：cli-chat-proxy 的 `response.output_item.added` 事件使用 `item` 字段（官方 API 用 `output_item`），原翻译器只读 `output_item` → 模型明明调用了工具，事件却被丢弃、finish 误报 `stop`，agent 永远不执行工具（表现为「模型只回答不执行」）。现兼容两种字段名，并新增 `output_item.done` 兜底关闭；工具调用→结果回传→总结的完整闭环真实链路实测通过。
 
 ## [0.18.0] - 2026-08-13
 

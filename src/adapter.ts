@@ -376,7 +376,10 @@ async function* translateResponsesSse(
       }
       switch (ev.event) {
         case "response.output_item.added": {
-          const item = json?.output_item;
+          // cli-chat-proxy carries the item under `item`, the official API under
+          // `output_item` — accept both (missing the proxy shape silently drops
+          // every tool call, which made agents answer instead of executing).
+          const item = json?.output_item ?? json?.item;
           if (item && item.type === "function_call") {
             sawToolCall = true;
             openBlock(item.id, "tool-call");
@@ -390,6 +393,43 @@ async function* translateResponsesSse(
                 blockType: "tool-call" as const,
               } as StreamChunk;
             }
+          }
+          break;
+        }
+        case "response.output_item.done": {
+          // Fallback close: proxies may skip the *_arguments.done / *_text.done
+          // events; close any still-open block from the completed item payload.
+          const item = json?.output_item ?? json?.item;
+          const itemId = item?.id ?? json?.item_id;
+          const block = itemId ? open.get(itemId) : undefined;
+          if (!block) break;
+          open.delete(itemId);
+          if (block.type === "tool-call") {
+            yield {
+              type: "block-end",
+              index: block.index,
+              block: {
+                type: "tool-call",
+                id: CallId(block.callId ?? item.call_id ?? itemId),
+                name: block.name ?? item?.name ?? "",
+                arguments: String(item?.arguments ?? block.args),
+              },
+            } as StreamChunk;
+          } else if (block.type === "reasoning") {
+            const summary = Array.isArray(item?.summary)
+              ? item.summary.map((t: any) => t?.text ?? "").join("")
+              : String(item?.text ?? block.text);
+            yield {
+              type: "block-end",
+              index: block.index,
+              block: { type: "reasoning", text: summary || block.text },
+            } as StreamChunk;
+          } else {
+            yield {
+              type: "block-end",
+              index: block.index,
+              block: { type: "text", text: String(item?.text ?? block.text) },
+            } as StreamChunk;
           }
           break;
         }
