@@ -8,6 +8,7 @@ node_modules/
 
 # Build / temp
 dist/
+lib/
 *.tsbuildinfo
 
 # OS

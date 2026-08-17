@@ -1,0 +1,6 @@
+# pi-xai bundle patch: mount the pi-xai DSH host half.
+# Provides the Grok Build (xAI) subscription LLM provider route + agentic tools + /xai-usage.
+# Requires the official `llm` core row (provided by the dsh-base bundle).
+- insert:
+    - id: pi-xai
+      name: 'pi-xai'

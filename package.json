@@ -1,92 +1,87 @@
 {
   "name": "pi-xai",
-  "version": "0.18.0",
-  "description": "xAI / Grok extras for Pi \u2014 Grok Build protocol, Imagine tools, usage QoL, agentic APIs (provider transitional)",
+  "version": "0.18.0-dsh.0",
+  "description": "xAI / Grok Build extras for DeepSeek Harness (DSH) — subscription provider, agentic tools, usage QoL. Ported from the Pi extension.",
   "keywords": [
-    "coding-plan",
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
     "grok",
     "grok-build",
-    "pi-package",
     "responses-api",
     "xai"
   ],
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/luxus/pi-xai.git"
+    "url": "git+https://github.com/ioOvOoi/pi-xai.git"
+  },
+  "type": "module",
+  "main": "./lib/index.js",
+  "types": "./lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./package.json": "./package.json"
   },
   "files": [
-    "index.ts",
-    "xai-*.ts",
-    "tsconfig.json",
+    "lib",
+    "cordis.patch.yml",
     "README.md",
     "CHANGELOG.md",
     "LICENSE",
     "assets"
   ],
-  "type": "module",
-  "main": "./index.ts",
-  "exports": {
-    ".": "./index.ts",
-    "./xai-oauth": "./xai-oauth.ts"
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
   },
   "scripts": {
-    "build": "echo 'nothing to build'",
-    "check": "tsgo --noEmit",
-    "typecheck": "tsgo --noEmit",
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
     "format": "oxfmt --write .",
     "format:check": "oxfmt --check .",
     "test": "vitest run",
-    "verify:deps": "node scripts/hoist-patched-deps.mjs && node scripts/verify-patched-deps.mjs",
     "test:watch": "vitest",
-    "prepare": "node -e \"const fs=require('fs'),cp=require('child_process');if(fs.existsSync('node_modules/husky'))cp.execFileSync('node',['node_modules/husky/bin.js'],{stdio:'inherit'})\""
+    "prepare": "husky && npm run build"
   },
   "dependencies": {
-    "typebox": "^1.3.6"
+    "@deepseek-ai/schemastery": "^3.18.1"
   },
   "peerDependencies": {
-    "@earendil-works/pi-ai": ">=0.80.0",
-    "@earendil-works/pi-coding-agent": ">=0.80.0"
+    "@deepseek-ai/cordis": "^4.0.1",
+    "@deepseek-ai/dsh-llm": "^0.1.0-rc.6",
+    "@deepseek-ai/dsh-tools": "^0.1.0-rc.6",
+    "@deepseek-ai/dsh-credentials": "^0.1.0-rc.6",
+    "@deepseek-ai/dsh-settings": "^0.1.0-rc.6",
+    "@deepseek-ai/dsh-launch-environment": "^0.1.0-rc.6",
+    "@deepseek-ai/dsh-timeout": "^0.1.0-rc.6"
   },
   "devDependencies": {
-    "@earendil-works/pi-ai": "^0.80.7",
-    "@earendil-works/pi-coding-agent": "^0.80.7",
-    "@typescript/native-preview": "^7.0.0-dev.20260707.2",
+    "@earendil-works/pi-ai": "^0.80.0",
+    "@earendil-works/pi-coding-agent": "^0.80.0",
+    "@types/node": "^24.13.3",
     "husky": "^9.1.7",
     "lint-staged": "^17.0.8",
     "oxfmt": "^0.55.0",
     "oxlint": "^1.74.0",
-    "protobufjs": "7.6.4",
-    "undici": "8.5.0",
-    "vitest": "^4.1.10",
-    "ws": "8.21.0"
+    "typebox": "^1.3.6",
+    "typescript": "^5.9.2",
+    "vitest": "^4.1.10"
   },
   "lint-staged": {
     "**/*.ts": [
       "oxfmt --write",
       "oxlint",
-      "sh -c 'tsgo --noEmit --project tsconfig.json'"
+      "sh -c 'tsc -p tsconfig.json --noEmit'"
     ]
-  },
-  "overrides": {
-    "protobufjs": "7.6.4",
-    "undici": "8.5.0",
-    "ws": "8.21.0",
-    "@earendil-works/pi-coding-agent": {
-      "protobufjs": "7.6.4",
-      "undici": "8.5.0",
-      "ws": "8.21.0"
-    }
   },
   "engines": {
     "node": ">=18"
-  },
-  "pi": {
-    "extensions": [
-      "./index.ts"
-    ],
-    "image": "https://raw.githubusercontent.com/luxus/pi-xai/main/assets/pi-xai-logo.png"
   }
 }
