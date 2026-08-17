@@ -204,7 +204,10 @@ export class XaiLlmAdapter extends LlmAdapter {
 
 // ─── request serialization (DSH vocabulary → xAI Responses) ────────────────
 
-function buildResponsesBody(options: GenerateOptions, _baseUrl: string): Record<string, unknown> {
+export function buildResponsesBody(
+  options: GenerateOptions,
+  _baseUrl: string,
+): Record<string, unknown> {
   const input = serializeMessages(options.messages ?? [], options.system);
   normalizeForXai(input as unknown[]);
   const body: Record<string, unknown> = {
@@ -230,7 +233,7 @@ function buildResponsesBody(options: GenerateOptions, _baseUrl: string): Record<
   return body;
 }
 
-function serializeMessages(messages: Message[], system: string | undefined): unknown[] {
+export function serializeMessages(messages: Message[], system: string | undefined): unknown[] {
   const input: unknown[] = [];
   if (system !== undefined && system.trim()) {
     input.push({ role: "developer", content: [{ type: "input_text", text: system }] });
@@ -348,7 +351,7 @@ type OpenBlock = {
   name?: string;
 };
 
-async function* translateResponsesSse(
+export async function* translateResponsesSse(
   raw: ReadableStream<Uint8Array>,
   signal: AbortSignal | undefined,
 ): AsyncGenerator<StreamChunk> {
@@ -613,7 +616,7 @@ async function* translateResponsesSse(
  * Non-streaming fallback: synthesize StreamChunk from a complete Responses JSON
  * (used when a proxy ignores stream:true and returns application/json).
  */
-async function* translateResponsesJson(
+export async function* translateResponsesJson(
   json: any,
   signal: AbortSignal | undefined,
 ): AsyncGenerator<StreamChunk> {
