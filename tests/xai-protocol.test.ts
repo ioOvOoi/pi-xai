@@ -9,17 +9,17 @@ import {
   isImageGenEnabled,
   grokSupportsReasoningEffort,
   grokWantsEncryptedReasoningInclude,
-} from "../xai-config.ts";
+} from "../src/protocol/xai-config.ts";
 import {
   GROK_CLI_CLIENT_IDENTIFIER,
   GROK_CLI_VERSION,
   grokCliModelHeaders,
   isGrokCliProxyBaseUrl,
   xaiRequestHeaders,
-} from "../xai-stream.ts";
-import { registerGrokCliConvHeaders, GROK_BUILD_MODELS } from "../xai-provider.ts";
-import { ensureXaiEncryptedReasoningInclude, mergeXaiTools } from "../index.ts";
-import { XAI_IMAGINE_MODEL } from "../xai-image-gen.ts";
+} from "../src/protocol/xai-stream.ts";
+import { registerGrokCliConvHeaders, GROK_BUILD_MODELS } from "../src/protocol/xai-provider.ts";
+import { ensureXaiEncryptedReasoningInclude, mergeXaiTools } from "../src/protocol/xai-payload.ts";
+import { XAI_IMAGINE_MODEL } from "../src/protocol/xai-image-gen.ts";
 
 describe("defaults (official Grok Build shape)", () => {
   test("default base is CLI proxy", () => {

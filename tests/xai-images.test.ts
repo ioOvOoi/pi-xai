@@ -6,7 +6,7 @@ import {
   normalizeImageInput,
   normalizeImageParts,
   rewriteFunctionCallOutputImages,
-} from "../xai-images.ts";
+} from "../src/protocol/xai-images.ts";
 
 const tempDirs: string[] = [];
 

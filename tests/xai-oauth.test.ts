@@ -28,8 +28,8 @@ import {
   parseCallbackInput,
   isXaiStaleTokenError,
   isXaiEntitlementError,
-} from "../xai-oauth.ts";
-import { isGrokModel } from "../xai-usage-status.ts";
+} from "../src/protocol/xai-oauth.ts";
+import { isGrokModel } from "../src/protocol/xai-usage-status.ts";
 
 const ORIGINAL_ENV_KEY = process.env.XAI_API_KEY;
 

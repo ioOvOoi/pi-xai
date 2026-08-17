@@ -1,17 +1,17 @@
 import { describe, expect, test } from "vitest";
-import { imagineInstruction, imagineUsageMessage } from "../xai-image-gen.ts";
+import { imagineInstruction, imagineUsageMessage } from "../src/protocol/xai-image-gen.ts";
 import {
   clampVideoDuration,
   imagineVideoInstruction,
   imagineVideoUsageMessage,
-} from "../xai-video-gen.ts";
+} from "../src/protocol/xai-video-gen.ts";
 import {
   htmlToRoughMarkdown,
   isPrivateIp,
   ssrfBlockReason,
   truncateText,
   upgradeToHttps,
-} from "../xai-web-fetch.ts";
+} from "../src/protocol/xai-web-fetch.ts";
 
 describe("/imagine slash", () => {
   test("usage and verbatim instruction", () => {

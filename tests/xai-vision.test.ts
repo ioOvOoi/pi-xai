@@ -4,11 +4,11 @@ import { join } from "node:path";
 import type { ExtensionContext, ToolResultEvent } from "@earendil-works/pi-coding-agent";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("../xai-oauth.ts", () => ({
+vi.mock("../src/protocol/xai-oauth.ts", () => ({
   getEffectiveXaiApiKey: vi.fn(async () => ({ apiKey: "provider-token", source: "env" })),
 }));
 
-import { getEffectiveXaiApiKey } from "../xai-oauth.ts";
+import { getEffectiveXaiApiKey } from "../src/protocol/xai-oauth.ts";
 import {
   DEFAULT_CONFIG,
   DEFAULT_DESCRIBE_MODEL,
@@ -25,8 +25,8 @@ import {
   shouldRouteVision,
   type CacheFile,
   type VisionImage,
-} from "../xai-vision.ts";
-import { GROK_BUILD_MODELS } from "../xai-provider.ts";
+} from "../src/protocol/xai-vision.ts";
+import { GROK_BUILD_MODELS } from "../src/protocol/xai-provider.ts";
 
 const PNG = Buffer.from("fake-png-bytes").toString("base64");
 

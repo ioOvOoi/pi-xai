@@ -1,11 +1,11 @@
 import { describe, expect, test } from "vitest";
-import { isSafePlanBash } from "../xai-plan-mode.ts";
+import { isSafePlanBash } from "../src/protocol/xai-plan-mode.ts";
 import {
   asGhostText,
   buildTranscript,
   filterSuggestion,
   stripAnsi,
-} from "../xai-prompt-suggest.ts";
+} from "../src/protocol/xai-prompt-suggest.ts";
 
 describe("plan mode bash allowlist", () => {
   test("allows read-only", () => {

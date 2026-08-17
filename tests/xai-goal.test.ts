@@ -8,7 +8,7 @@ import {
   pauseGoal,
   resumeGoal,
   setGoal,
-} from "../xai-goal.ts";
+} from "../src/protocol/xai-goal.ts";
 
 describe("xai-goal (Grok Build lean port)", () => {
   beforeEach(() => clearGoal());

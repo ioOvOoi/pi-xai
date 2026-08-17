@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, test } from "vitest";
-import { resolveImagineImageRef } from "../xai-image-gen.ts";
+import { resolveImagineImageRef } from "../src/protocol/xai-image-gen.ts";
 
 const tempDirs: string[] = [];
 afterEach(() => {
