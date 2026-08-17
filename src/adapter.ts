@@ -13,19 +13,26 @@
  * - slash-enum stripping on tools (xAI 422)
  */
 
-import { CallId, LlmAdapter, LlmError, attributionHeaders } from "@deepseek-ai/dsh-llm";
+import {
+  CallId,
+  LlmAdapter,
+  LlmError,
+  ReasoningEffortId,
+  attributionHeaders,
+} from "@deepseek-ai/dsh-llm";
 import type {
   ContentBlock,
   FinishReason,
   GenerateOptions,
   LlmModelInfo,
+  LlmModelReasoningInfo,
   LlmProviderInfo,
   LlmResolvedModelInfo,
   Message,
   StreamChunk,
   TokenUsage,
 } from "@deepseek-ai/dsh-llm";
-import { grokModelId } from "./protocol/xai-config.ts";
+import { grokModelId, grokSupportsReasoningEffort } from "./protocol/xai-config.ts";
 import { GROK_BUILD_MODELS } from "./protocol/xai-provider.ts";
 import {
   ensureXaiPromptCacheKey,
@@ -61,6 +68,49 @@ function httpErrorCode(status: number, detail: string): string {
   return "TRANSPORT";
 }
 
+const EFFORT_NAMES: Record<string, string> = {
+  low: "Low",
+  medium: "Medium",
+  high: "High",
+  xhigh: "XHigh",
+};
+
+/**
+ * Selectable reasoning efforts for one catalog model, mirroring the Pi-era
+ * semantics (grokSupportsReasoningEffort gate + per-model thinkingLevelMap):
+ * - explicit map → expose every level mapped to a canonical xAI effort
+ *   (off→none and alias entries like minimal/max are hidden)
+ * - no map but effort-capable (grok-4.3 / 4.5 / 4.6 / multi-agent) → low/medium/high
+ *   (multi-agent also xhigh)
+ * - non-reasoning and grok-build* models → no selector
+ */
+function reasoningInfoFor(
+  spec:
+    | { id: string; reasoning: boolean; thinkingLevelMap?: Record<string, string | null> }
+    | undefined,
+): LlmModelReasoningInfo | undefined {
+  if (!spec?.reasoning) return undefined;
+  const efforts: string[] = [];
+  if (spec.thinkingLevelMap) {
+    for (const [level, mapped] of Object.entries(spec.thinkingLevelMap)) {
+      if (mapped === level && mapped in EFFORT_TO_XAI && !efforts.includes(level)) {
+        efforts.push(level);
+      }
+    }
+  }
+  if (efforts.length === 0) {
+    if (spec.id.startsWith("grok-build") || !grokSupportsReasoningEffort(spec.id)) {
+      return undefined;
+    }
+    efforts.push("low", "medium", "high");
+    if (spec.id.includes("multi-agent")) efforts.push("xhigh");
+  }
+  return {
+    efforts: efforts.map((id) => ({ id: ReasoningEffortId(id), name: EFFORT_NAMES[id] ?? id })),
+    defaultEffort: ReasoningEffortId("high"),
+  };
+}
+
 export class XaiLlmAdapter extends LlmAdapter {
   constructor(private readonly config: AdapterConfig) {
     super();
@@ -84,14 +134,17 @@ export class XaiLlmAdapter extends LlmAdapter {
   resolveModel(provider: string, model: string): Promise<LlmResolvedModelInfo> {
     const spec = GROK_BUILD_MODELS.find((m) => m.id === model);
     const c = this.config.options();
-    return Promise.resolve({
+    const info: LlmResolvedModelInfo = {
       provider,
       id: model,
       name: spec?.name ?? model,
       inputModalities: (spec?.input ?? ["text"]) as ("text" | "image")[],
       context: { contextWindow: spec?.contextWindow ?? c.defaultContextWindow },
       defaultMaxTokens: spec?.maxTokens ?? c.maxTokens,
-    });
+    };
+    const reasoning = reasoningInfoFor(spec);
+    if (reasoning) info.reasoning = reasoning;
+    return Promise.resolve(info);
   }
 
   async *stream(options: GenerateOptions): AsyncGenerator<StreamChunk> {

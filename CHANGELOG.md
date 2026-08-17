@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **命令**：`/xai-usage`（Grok Build 订阅配额）。
 - **去重**：goal / plan-mode 使用 DSH 原生能力，不再移植；usage 状态栏 / prompt 幽灵暂缓。
 - **真实链路验证**：`scripts/e2e-smoke.mjs` 走通凭据解析 → CLI 代理 → Responses SSE → StreamChunk（grok-4.6 实测输出 + usage + finish 通过）；修复：CLI 代理需显式 `stream:true`（否则回退非流式 JSON 兜底翻译）。
+- **思考强度可选**：`resolveModel` 暴露 reasoning efforts（grok-4.6/4.5/4.3/multi-agent 可选 low/medium/high，4.6 与 multi-agent 含 xhigh；grok-build/非推理模型不暴露），DSH 模型选择 UI 可直接调整；effort 参数真实链路实测通过。
 
 ## [0.18.0] - 2026-08-13
 
